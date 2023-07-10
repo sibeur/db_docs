@@ -1,0 +1,37 @@
+# Ignore build output
+/dist
+/out
+/build
+
+# Ignore dependencies
+/node_modules
+
+# Ignore environment files
+.env
+.env.local
+.env.*.local
+
+# Ignore logs
+*.log
+
+# Ignore compiled JavaScript files
+*.js
+*.js.map
+
+# Ignore TypeScript declaration files
+*.d.ts
+
+# Ignore editor-specific files
+.vscode
+.idea
+*.sublime-*
+*.swp
+
+# Ignore test coverage reports
+/coverage
+
+# Ignore package-lock.json for npm
+package-lock.json
+
+# Ignore yarn.lock for Yarn
+yarn.lock
