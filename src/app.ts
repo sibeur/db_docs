@@ -26,7 +26,10 @@ app.post('/db-docs', async (req: Request, res: Response) => {
         const value = await docsValidationBody.validateAsync(body);
         const docsJSON: DocsSchema[] = await Promise.all(value.schemas.map(async (schema: any) => {
             return getDocs(value.config, {name: schema.name, tables: schema.tables})
-        }))
+        }));
+        if (req.query.only_data == 'true') {
+          return res.json(docsJSON)
+        }
         const filePath = await jsonToDocs(docsJSON);
         res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
         res.setHeader('Content-Disposition', `attachment; filename="db_docs_${Date.now()}.docx"`);
