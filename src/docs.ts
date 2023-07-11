@@ -102,7 +102,7 @@ export async function getDocs(config: PoolConfig, option: DocsSchemaOption) {
     name: option.name,
     tables: option.tables.map((tableName) => ({
         name: tableName,
-        columns: tableInfos.map(col => ({
+        columns: tableInfos.filter(col => col.table_name === tableName).map(col => ({
           name: col.column_name,
           desc: col.column_desc ?? '',
           dataType: col.data_type,
