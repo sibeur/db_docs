@@ -120,7 +120,6 @@ export async function getDocs(config: PoolConfig, option: DocsSchemaOption) {
     getTableComments(config, option),
   ]);
 
-  console.log(tableComments);
   const docs: DocsSchema = {
     name: option.name,
     tables: option.tables.map((tableName) => {
