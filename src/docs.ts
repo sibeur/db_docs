@@ -93,28 +93,55 @@ export async function getTablesConstraint(config: PoolConfig, option: DocsSchema
   }
 }
 
+export async function getTableComments(config: PoolConfig, option: DocsSchemaOption) {
+  const client = await getClient(config);
+  if (option.tables.length < 1) {
+    option.tables = await getSchemaTables(config, option.name)
+  }
+  try {
+    const tableComments = option.tables.map(async (tableName) => {
+      const sql = `SELECT obj_description('${option.name}.${tableName}'::regclass) AS table_comment;`
+      const results = await client.query(sql)
+      const [result] = results.rows;
+      return { tableName, desc: result.table_comment }
+    });
+    return Promise.all(tableComments);
+  } catch (error) {
+    return Promise.reject(error);
+  } finally {
+    client.release();
+  }
+}
+
 export async function getDocs(config: PoolConfig, option: DocsSchemaOption) {
-  const [tableInfos, tableConstraints] = await Promise.all([
+  const [tableInfos, tableConstraints, tableComments] = await Promise.all([
     getTablesInfo(config, option),
     getTablesConstraint(config, option),
+    getTableComments(config, option),
   ]);
+
+  console.log(tableComments);
   const docs: DocsSchema = {
     name: option.name,
-    tables: option.tables.map((tableName) => ({
-        name: tableName,
-        columns: tableInfos.filter(col => col.table_name === tableName).map(col => ({
-          name: col.column_name,
-          desc: col.column_desc ?? '',
-          dataType: col.data_type,
-          aliasDataType: col.udt_name,
-          length: col.character_maximum_length ?? col.numeric_precision ?? null,
-          nullable: col.is_nullable,
-          constraints: tableConstraints 
-          .filter(con => (con.table_name == tableName))
-          .filter(con => (con.column_name == col.column_name))
-          .map(con => (con.constraint_type))
-        }))
-    }))
+    tables: option.tables.map((tableName) => {
+      const tableDesc = tableComments.find(t => t.tableName == tableName)
+      return {
+          name: tableName,
+          desc: tableDesc?.desc ?? '',
+          columns: tableInfos.filter(col => col.table_name === tableName).map(col => ({
+            name: col.column_name,
+            desc: col.column_desc ?? '',
+            dataType: col.data_type,
+            aliasDataType: col.udt_name,
+            length: col.character_maximum_length ?? col.numeric_precision ?? null,
+            nullable: col.is_nullable,
+            constraints: tableConstraints 
+            .filter(con => (con.table_name == tableName))
+            .filter(con => (con.column_name == col.column_name))
+            .map(con => (con.constraint_type))
+          }))
+      }
+    })
   }
   return docs
 }
