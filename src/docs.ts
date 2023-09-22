@@ -28,6 +28,10 @@ export type DocsSchema = {
   tables: DocsTable[]
 }
 
+export enum ExportAs {
+  DOCX = 'docx'
+}
+
 export async function getClient(config: PoolConfig): Promise<PoolClient> {
   const pool = new Pool(config);
   return pool.connect();

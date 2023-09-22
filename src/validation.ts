@@ -6,6 +6,7 @@ const pgConnConfigBody = Joi.object({
     user: Joi.string().required(),
     password: Joi.string().required(),
     database: Joi.string().required(),
+    ssl: Joi.boolean()
 });
 
 const pgSchemasBody = Joi.object({
