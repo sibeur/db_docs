@@ -14,6 +14,11 @@ Run API
 npm run start
 ```
 
+## Install in Docker
+```bash
+docker run -d -p 3000:3000 sibeur/db_docs
+```
+
 ## Usage  
 ```bash
 curl --location '$BASE_URL/db-docs?export_as=docx' \
